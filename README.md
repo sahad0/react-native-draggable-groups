@@ -2,7 +2,7 @@
 
 A drag-and-drop-enabled FlatList grouping component for React Native
 
-<img src="https://github.com/user-attachments/assets/29242316-4ea2-46ad-8c0c-d2636ef19bee" width="300" height="600" />
+<img src="https://github.com/user-attachments/assets/29242316-4ea2-46ad-8c0c-d2636ef19bee" width="300" height="640" />
 
 
 ## Acknowledgment

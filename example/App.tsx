@@ -184,7 +184,7 @@ function App() {
           onSectionPress={(sectionId: string) => {
             deleteSectionHandler(sectionId);
           }}
-          onItemPress={() => console.log('first')}
+          onItemPress={(id) => console.log(id)}
           renderItemStyle={styles.addtionalStylesParent}
         />
       </SafeAreaView>

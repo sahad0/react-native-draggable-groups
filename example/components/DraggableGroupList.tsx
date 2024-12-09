@@ -1,8 +1,9 @@
-import { Alert, LayoutAnimation } from 'react-native';
+/* eslint-disable react-native/no-inline-styles */
+import { Alert, LayoutAnimation, TouchableOpacity, View } from 'react-native';
 import React from 'react';
 import { isEqual } from 'lodash';
 import { nextFrame } from '../utils/utils';
-import { COLOR } from '../constants';
+import { COLOR, MARGIN } from '../constants';
 import DraggableFlatList, {
   type RenderItemParams,
 } from 'react-native-draggable-flatlist';
@@ -13,11 +14,16 @@ import type {
   SectionDataItem,
 } from '../types/types';
 
+const emptyFn = () => {};
+
 const DraggableGroupList: React.FC<DraggableGroupListProps> = ({
   sectionFieldList,
   setSectionFieldList,
   seperatorComponent,
   renderItemComponent,
+  renderItemStyle = {},
+  onSectionPress = emptyFn,
+  onItemPress = emptyFn,
 }: any) => {
   const [dragOptions, setDragOptions] = React.useState<DragItemOption>({});
 
@@ -184,7 +190,11 @@ const DraggableGroupList: React.FC<DraggableGroupListProps> = ({
       return null;
     }
     if (item?.isSeperator) {
-      return seperatorComponent({ isSectionDragged });
+      return (
+        <View style={{ opacity: isSectionDragged ? 0 : 1 }}>
+          {seperatorComponent({ isSectionDragged })}
+        </View>
+      );
     }
 
     const onDragPress = async () => {
@@ -202,13 +212,31 @@ const DraggableGroupList: React.FC<DraggableGroupListProps> = ({
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     };
 
-    return renderItemComponent({
-      item,
-      onDragPress,
-      isSectionDragged,
-      index,
-      isActive,
-    });
+    return (
+      <TouchableOpacity
+        onLongPress={onDragPress}
+        onPress={
+          item?.sectionId
+            ? () => onSectionPress(item?.sectionId)
+            : () => onItemPress(item?.id)
+        }
+        style={[
+          {
+            opacity: isSectionDragged ? 0 : 1,
+            marginHorizontal: item?.groupedTo ? MARGIN.MEDIUM : 0,
+          },
+          renderItemStyle,
+        ]}
+      >
+        {renderItemComponent({
+          item,
+          onDragPress,
+          isSectionDragged,
+          index,
+          isActive,
+        })}
+      </TouchableOpacity>
+    );
   };
   return (
     <DraggableFlatList

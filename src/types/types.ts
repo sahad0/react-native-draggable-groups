@@ -1,4 +1,5 @@
 import type { Dispatch, SetStateAction } from 'react';
+import type { ViewStyle } from 'react-native';
 
 export interface DragItemOption {
   groupedTo?: string;
@@ -53,6 +54,9 @@ export interface DraggableGroupListProps {
     index,
     isActive,
   }: FlatListGroupItem) => React.JSX.Element;
+  onSectionPress: (sectionId: string) => void;
+  onItemPress: (id: string) => void;
+  renderItemStyle?: ViewStyle;
 }
 
 export interface Section {

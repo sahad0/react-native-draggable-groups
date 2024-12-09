@@ -34,7 +34,6 @@ import {
   Button,
   SafeAreaView,
   View,
-  TouchableOpacity,
   Text,
   Image,
 } from 'react-native';
@@ -46,8 +45,10 @@ import type {
   FieldData,
   FlatListGroupItem,
   SectionDataItem,
-  SeperatorItemType,
 } from './types/types';
+
+// global.JSL = (args: any): any =>
+//   console.log(JSON.stringify(args, getCircularReplacer(), 2));
 
 const dummyArr = [
   {
@@ -147,21 +148,11 @@ function App() {
     );
   };
 
-  const seperatorItem = ({ isSectionDragged }: SeperatorItemType) => {
-    return (
-      <View
-        style={[styles.groupSeperator, { opacity: isSectionDragged ? 0 : 1 }]}
-      />
-    );
+  const seperatorItem = () => {
+    return <View style={[styles.groupSeperator]} />;
   };
 
-  const renderItem = ({
-    item,
-    onDragPress,
-    isSectionDragged,
-    index,
-    isActive,
-  }: FlatListGroupItem) => {
+  const renderItem = ({ item, index, isActive }: FlatListGroupItem) => {
     const columnDetails = Object.assign(
       {},
       item && item?.sectionName
@@ -172,54 +163,40 @@ function App() {
         : { text: item?.text || 'No Description' }
     );
     return (
-      <TouchableOpacity
-        onLongPress={onDragPress}
-        onPress={() =>
-          item?.sectionId ? deleteSectionHandler(item?.sectionId) : {}
-        }
+      <View
         style={[
-          {
-            opacity: isSectionDragged ? 0 : 1,
-            marginHorizontal: item?.groupedTo ? MARGIN.MEDIUM : 0,
-          },
-          styles.addtionalStylesParent,
+          styles.cardStyle,
+          isActive ? { backgroundColor: COLOR.GRAY100 } : {},
         ]}
+        key={item?.id ?? `index_${index}`}
       >
-        <View
-          style={[
-            styles.cardStyle,
-            isActive ? { backgroundColor: COLOR.GRAY100 } : {},
-          ]}
-          key={item?.id ?? `index_${index}`}
-        >
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            {item?.sectionId ? (
-              <Image
-                style={{
-                  height: MARGIN.EXTRA_LARGE + 5,
-                  width: MARGIN.EXTRA_LARGE + 5,
-                  marginLeft: MARGIN.MARGIN_8,
-                }}
-                source={require('./assets/new.jpg')}
-              />
-            ) : null}
-            <Text
-              style={[
-                styles.titleStyle,
-                {
-                  color: item?.sectionName
-                    ? COLOR.BLACK_BANNER_TEXT
-                    : COLOR.WHITE,
-                },
-              ]}
-            >
-              {item?.title || item?.sectionName || ''}
-            </Text>
-          </View>
-
-          <Text style={styles.subTitleStyle}>{columnDetails.text}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          {item?.sectionId ? (
+            <Image
+              style={{
+                height: MARGIN.EXTRA_LARGE + 5,
+                width: MARGIN.EXTRA_LARGE + 5,
+                marginLeft: MARGIN.MARGIN_8,
+              }}
+              source={require('./assets/new.jpg')}
+            />
+          ) : null}
+          <Text
+            style={[
+              styles.titleStyle,
+              {
+                color: item?.sectionName
+                  ? COLOR.BLACK_BANNER_TEXT
+                  : COLOR.WHITE,
+              },
+            ]}
+          >
+            {item?.title || item?.sectionName || ''}
+          </Text>
         </View>
-      </TouchableOpacity>
+
+        <Text style={styles.subTitleStyle}>{columnDetails.text}</Text>
+      </View>
     );
   };
 
@@ -232,6 +209,11 @@ function App() {
           setSectionFieldList={setSectionFieldList}
           seperatorComponent={seperatorItem}
           renderItemComponent={renderItem}
+          onSectionPress={(sectionId: string) => {
+            deleteSectionHandler(sectionId);
+          }}
+          onItemPress={() => console.log('first')}
+          renderItemStyle={styles.addtionalStylesParent}
         />
       </SafeAreaView>
     </GestureHandlerRootView>
@@ -279,6 +261,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLOR.WHITE,
   },
 });
+
 
 ```
 

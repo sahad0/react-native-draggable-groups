@@ -1,4 +1,3 @@
-import { has, isEmpty, omit } from 'lodash';
 import type {
   AddSectionToList,
   DelSectionFromList,
@@ -51,7 +50,7 @@ const getOrderedSectionListWithSeperators = (
   return sections.reduce((arr: OrderedList, currObj: Section) => {
     arr.push(currObj);
     currObj.colIds
-      ?.filter((colId) => has(headerDataAsObj, colId))
+      ?.filter((colId) => Object.hasOwn(headerDataAsObj, colId))
       ?.forEach((colId) => {
         const groupedItem: GroupedItem = {
           ...headerDataAsObj[colId],
@@ -64,12 +63,12 @@ const getOrderedSectionListWithSeperators = (
   }, []);
 };
 
-const getInitialFieldList = (
+const getInitialFieldList = ({
   headerData = [],
   sections = [],
-  headerDataAsObj = {}
-) => {
-  if (isEmpty(sections)) {
+  headerDataAsObj = {},
+}) => {
+  if (!sections?.length) {
     return headerData;
   }
   return getOrderedSectionListWithSeperators(headerDataAsObj, sections);
@@ -100,6 +99,9 @@ const addSectionToList = ({
   }
   return list; // Return the original list if no sectionName is provided
 };
+
+const omit = (obj: Record<string, any>, keyToOmit: string) =>
+  Object.fromEntries(Object.entries(obj).filter(([key]) => key !== keyToOmit));
 
 const deleteSectionFromList = ({
   list,

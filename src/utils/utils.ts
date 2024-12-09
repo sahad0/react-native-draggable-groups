@@ -1,4 +1,3 @@
-import { has, isEmpty, omit } from 'lodash';
 import type {
   AddSectionToList,
   DelSectionFromList,
@@ -51,7 +50,7 @@ const getOrderedSectionListWithSeperators = (
   return sections.reduce((arr: OrderedList, currObj: Section) => {
     arr.push(currObj);
     currObj.colIds
-      ?.filter((colId) => has(headerDataAsObj, colId))
+      ?.filter((colId) => Object.hasOwn(headerDataAsObj, colId))
       ?.forEach((colId) => {
         const groupedItem: GroupedItem = {
           ...headerDataAsObj[colId],
@@ -69,7 +68,7 @@ const getInitialFieldList = ({
   sections = [],
   headerDataAsObj = {},
 }) => {
-  if (isEmpty(sections)) {
+  if (!sections?.length) {
     return headerData;
   }
   return getOrderedSectionListWithSeperators(headerDataAsObj, sections);
@@ -101,6 +100,9 @@ const addSectionToList = ({
   return list; // Return the original list if no sectionName is provided
 };
 
+const omit = (obj: Record<string, any>, keyToOmit: string) =>
+  Object.fromEntries(Object.entries(obj).filter(([key]) => key !== keyToOmit));
+
 const deleteSectionFromList = ({
   list,
   s_id,
@@ -114,7 +116,7 @@ const deleteSectionFromList = ({
     const currentList = [...list];
     const itemsToRemove = sectionObj?.colIds?.length
       ? sectionObj.colIds.length + 2
-      : 1;
+      : 2;
     currentList.splice(deletionIndex, itemsToRemove);
     const refactoredList = list
       .slice(deletionIndex, deletionIndex + itemsToRemove)

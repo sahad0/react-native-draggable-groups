@@ -1,7 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import { Alert, LayoutAnimation, TouchableOpacity, View } from 'react-native';
 import React from 'react';
-import { isEqual } from 'lodash';
 import { nextFrame } from '../utils/utils';
 import { COLOR, MARGIN } from '../constants';
 import DraggableFlatList, {
@@ -117,10 +116,10 @@ const DraggableGroupList: React.FC<DraggableGroupListProps> = ({
       ) {
         firstSectionItemIndex = index;
       }
-      if (isEqual(item?.groupedTo, dragOptions?.id)) {
+      if (item?.groupedTo === dragOptions?.id) {
         count += 1;
       }
-      if (isEqual(item?.seperatorGroup, dragOptions?.id)) {
+      if (item?.seperatorGroup === dragOptions?.id) {
         count += 1;
       }
     });

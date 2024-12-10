@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import { Alert, LayoutAnimation, TouchableOpacity, View } from 'react-native';
 import React from 'react';
-import { nextFrame } from '../utils/utils';
+import { nextFrame, omit } from '../utils/utils';
 import { COLOR, MARGIN } from '../constants';
 import DraggableFlatList, {
   type RenderItemParams,
@@ -26,8 +26,6 @@ const DraggableGroupList: React.FC<DraggableGroupListProps> = ({
 }: any) => {
   const [dragOptions, setDragOptions] = React.useState<DragItemOption>({});
 
-  // if this fn returns => value it has valid field switch
-  // if it return false , its used to check valid section switch
   const hasValidFieldMappingIndex = (data: GroupSectionData, index: number) => {
     const prevElement = data?.[index - 1];
     const nextElement = data?.[index + 1];
@@ -41,8 +39,30 @@ const DraggableGroupList: React.FC<DraggableGroupListProps> = ({
   const handleFieldSwitch = (data: GroupSectionData, itemIndex: number) => {
     const sectionMapping = hasValidFieldMappingIndex(data, itemIndex);
 
-    const orderedColIds: string[] = [];
-    if (sectionMapping === data?.[itemIndex]?.groupedTo) {
+    const isPlacedInsideSection = Boolean(sectionMapping);
+
+    const orderedColIds: any = [];
+    if (!isPlacedInsideSection) {
+      if (data[itemIndex]?.groupedTo) {
+        const { id, groupedTo } = data[itemIndex] || {};
+        const sectionIndex = data.findIndex(
+          (item: any) => item?.sectionId === groupedTo
+        );
+        if (sectionIndex > -1) {
+          const sectionItem = Object.assign({}, data[sectionIndex]);
+          const subColids = sectionItem.colIds || [];
+          const updatedSectionSubItems =
+            subColids.filter((colId: string) => colId !== id) ?? [];
+          Object.assign(sectionItem, { colIds: updatedSectionSubItems });
+          const updatedItem = omit(data[itemIndex], 'groupedTo');
+          data[itemIndex] = updatedItem;
+          data[sectionIndex] = sectionItem;
+          return data;
+        }
+        return;
+      }
+      return data;
+    } else if (sectionMapping === data?.[itemIndex]?.groupedTo) {
       //When Swapping is inside same Section
       let sectionIndex = -1;
       data.forEach((colObj: SectionDataItem, index: number) => {
@@ -76,7 +96,7 @@ const DraggableGroupList: React.FC<DraggableGroupListProps> = ({
           prevSectionIndex = index;
         }
         if (colObj?.groupedTo === sectionMapping) {
-          orderedColIds.push(colObj?.id as string);
+          orderedColIds?.push(colObj?.id as string);
         }
       });
 
@@ -143,25 +163,26 @@ const DraggableGroupList: React.FC<DraggableGroupListProps> = ({
     return data;
   };
 
-  const saveDragCall = ({ data }: { data: GroupSectionData }) => {
+  const saveDragCall = ({ data }: { data: any }) => {
+    const dataArr: any = data.slice();
     // Case :A - Once Section is created they only can be moved inside sections
-    const hasSections = data?.some?.(
-      (headerObj: SectionDataItem) => headerObj?.sectionId
+    const hasSections = dataArr?.some?.(
+      (headerObj: any) => headerObj?.sectionId
     );
     if (hasSections) {
       // Case A.1 - Fields can onlybe placed inside sections
       let switchedData;
       if (dragOptions?.isSection) {
-        switchedData = handleSectionSwitch(data);
+        switchedData = handleSectionSwitch(dataArr);
 
         if (!switchedData) {
           return;
         }
       } else {
-        const itemIndex = data?.findIndex?.(
-          (item: SectionDataItem) => item?.id === dragOptions?.id
+        const itemIndex = dataArr?.findIndex?.(
+          (item: any) => item?.id === dragOptions?.id
         );
-        switchedData = handleFieldSwitch(data, itemIndex);
+        switchedData = handleFieldSwitch(dataArr, itemIndex);
         if (!switchedData) {
           return;
         }
@@ -170,7 +191,7 @@ const DraggableGroupList: React.FC<DraggableGroupListProps> = ({
       return;
     }
     //Case :B  - Else it should works on old Field Sort
-    setSectionFieldList(() => data);
+    setSectionFieldList(() => dataArr);
   };
 
   const renderItem = ({

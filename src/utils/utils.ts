@@ -169,4 +169,5 @@ export {
   deleteSectionFromList,
   editSectionName,
   getAvailableSections,
+  omit,
 };
